@@ -41,7 +41,7 @@ class GenreList(APIView):
 
     def post(self, request, format=None):
         serializer = GenreSerializer(data=request.data)
-        if serializer.is_valid(raise_exception=True):
+        if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -63,7 +63,9 @@ class GenreDetail(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def patch(self, request, pk, format=None):
-        serializer = GenreSerializer(self.get_genre_obj(pk), data=request.data)
+        serializer = GenreSerializer(self.get_genre_obj(pk),
+                                     data=request.data,
+                                     partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -109,51 +111,16 @@ class ActorDetail(RetrieveModelMixin,
         return self.destroy(request, *args, **kwargs)
 
 
-class CinemaHallViewSet(GenericViewSet):
-    def get_cinema_hall(self, pk):
-        return get_object_or_404(CinemaHall, pk=pk)
-
-    def list(self, request):
-        queryset = CinemaHall.objects.all()
-        serializer = CinemaHallSerializer(queryset, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    def create(self, request):
-        serializer = CinemaHallSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def retrieve(self, request, pk):
-        cinema_hall = self.get_cinema_hall(pk)
-        serializer = CinemaHallSerializer(cinema_hall)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    def update(self, request, pk):
-        cinema_hall = self.get_cinema_hall(pk)
-        serializer = CinemaHallSerializer(cinema_hall, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def partial_update(self, request, pk):
-        cinema_hall = self.get_cinema_hall(pk)
-        serializer = CinemaHallSerializer(
-            cinema_hall,
-            data=request.data,
-            partial=True
-        )
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def destroy(self, request, pk):
-        cinema_hall = self.get_cinema_hall(pk)
-        cinema_hall.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+class CinemaHallViewSet(
+    GenericViewSet,
+    ListModelMixin,
+    CreateModelMixin,
+    RetrieveModelMixin,
+    UpdateModelMixin,
+    DestroyModelMixin
+):
+    queryset = CinemaHall.objects.all()
+    serializer_class = CinemaHallSerializer
 
 
 class MovieViewSet(ModelViewSet):
