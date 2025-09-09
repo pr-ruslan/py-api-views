@@ -36,9 +36,9 @@ class MovieSerializer(serializers.Serializer):
         genres = validated_data.pop("genres", None)
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
-        if actors:
+        if actors is not None:
             instance.actors.set(actors)
-        if genres:
+        if genres is not None:
             instance.genres.set(genres)
         instance.save()
 

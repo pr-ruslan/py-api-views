@@ -27,7 +27,8 @@ urlpatterns = [
     path("cinema_halls/<int:pk>/", CinemaHallViewSet.as_view({
         "get": "retrieve",
         "put": "update",
-        "delete": "destroy"
+        "delete": "destroy",
+        "patch": "partial_update"
     }), name="cinema-hall-detail"),
     path("", include(router.urls)),
 ]
